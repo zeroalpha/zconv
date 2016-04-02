@@ -1,8 +1,5 @@
 $LOAD_PATH.unshift File.expand_path('../../lib', __FILE__)
 require 'zconv'
-
-require 'minitest/autorun'
-
 module TestData
   #TestData::TARGET
   lorem_ipsum = %q{
@@ -22,8 +19,13 @@ Mundi corpora an vim. Erant vitae sit ut, mazim epicurei ut eum, ex putant feuga
   const_set 'TARGET', targets
 
   #TestData::SOURCE
+  data_dir = File.join File.dirname(__FILE__),'data'
   sources = {
-    fb80: 
+    fb80: File.binread(File.join(data_dir,'EBCDIC.TESTDATA.FB80'))
   }
 
+  const_set 'SOURCE', sources
+
 end
+
+require 'minitest/autorun'

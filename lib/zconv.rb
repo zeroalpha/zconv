@@ -7,6 +7,7 @@ module Zconv
   class UnknownRecordFormat < ArgumentError; end
 
   class Dataset
+    attr_reader :content,:format,:ccsid,:bytemap
     def initialize(content, ccsid=37, format_options = {:recfm=>'FB', :lrecl=>80})
       if (ccsid = ccsid.to_s[/\d+/].to_i) == 0
         raise NonNumericCCSIDError, "The CCSID needs to be an Integer or a String containing the number"
@@ -29,9 +30,15 @@ module Zconv
     end
 
     private
+    def convert_fix_blocksize
+      @content.bytes
+          .map{ |b| @bytemap[b] }
+          .each_slice(@format[:lrecl])
+          .to_a.map{ |line| line.pack('U*') }
+          .join("\n")
+    end
+
     def load_map(ccsid)
-      ccsid = "IBM-%04i"%[ccsid]
-      map_filename = File.dirname(__FILE__) + '/../maps/' + ccsid.downcase + '.yml'
       file_name = File.join(File.dirname(__FILE__),'..','maps',"ibm-%04i.yml"%[ccsid])
       begin
         YAML.load(File.read(file_name))
